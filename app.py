@@ -18,64 +18,122 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-        /* Global */
-        body {
-            background-color: #FFFFFF !important;
+
+        /* GLOBAL RESET */
+        body, .stApp {
+            background: #ffffff !important;
+            color: #000000 !important;
+            font-family: 'Inter', sans-serif;
         }
 
+        /* NEO-BRUTALIST COLORS */
+        :root {
+            --primary: #000000;
+            --accent: #ffde00;
+            --border: 4px solid #000000;
+        }
+
+        /* HEADERS */
         .hero-title {
-            font-size: 2.8rem;
-            font-weight: 800;
-            margin-bottom: -5px;
-            color: #0A0A0A;
+            font-size: 3.2rem;
+            font-weight: 900;
+            padding: 10px 0;
+            border-bottom: var(--border);
+            text-transform: uppercase;
         }
 
         .hero-sub {
-            font-size: 1.15rem;
-            color: #4A4A4A;
-            margin-bottom: 25px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--accent);
+            border: var(--border);
         }
 
         .section-title {
             font-size: 1.6rem;
-            font-weight: 700;
-            margin-top: 30px;
-            margin-bottom: 10px;
-            color: #111111;
+            font-weight: 800;
+            margin-top: 40px;
+            padding: 8px 12px;
+            background: #ffffff;
+            border-left: var(--border);
+            border-bottom: var(--border);
         }
 
+        /* DIVIDERS */
         .divider {
-            border-bottom: 1px solid #E0E0E0;
-            margin-top: 1.2rem;
-            margin-bottom: 1.2rem;
+            border-bottom: var(--border);
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
         }
 
+        /* HEADLINES */
         .headline {
-            font-size: 1.15rem;
-            font-weight: 600;
-            margin-bottom: -3px;
-            color: #222222;
+            font-size: 1.2rem;
+            font-weight: 800;
+            padding: 6px;
+            border: var(--border);
+            background: #ffffff;
         }
 
         .subtle {
-            color: #7A7A7A;
             font-size: 0.85rem;
+            color: #333333;
             margin-bottom: 5px;
         }
 
-        /* Table polish */
-        .dataframe tbody tr:nth-child(even) {
-            background-color: #FAFAFA;
+        /* TABLE */
+        .dataframe {
+            border: var(--border) !important;
         }
 
-        .dataframe tbody tr:hover {
-            background-color: #F0F8FF;
+        .dataframe th {
+            background: var(--accent) !important;
+            border: var(--border) !important;
+            font-weight: 900 !important;
         }
+
+        .dataframe td {
+            border: var(--border) !important;
+        }
+
+        /* LINKS */
+        a {
+            color: #000000 !important;
+            font-weight: 700;
+            text-decoration: underline !important;
+        }
+
+        /* SIDEBAR */
+        section[data-testid="stSidebar"] {
+            background: #ffde00 !important;
+            border-right: var(--border);
+        }
+
+        section[data-testid="stSidebar"] * {
+            color: #000000 !important;
+            font-weight: 700 !important;
+        }
+
+        /* BUTTONS */
+        .stButton>button {
+            background: #ffffff !important;
+            border: var(--border) !important;
+            color: #000000 !important;
+            font-weight: 800 !important;
+            padding: 10px 20px;
+            text-transform: uppercase;
+        }
+
+        .stButton>button:hover {
+            background: var(--accent) !important;
+        }
+
     </style>
     """,
     unsafe_allow_html=True
 )
-
 # -----------------------------
 # Hero Section
 # -----------------------------
