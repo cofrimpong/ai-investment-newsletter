@@ -2,6 +2,7 @@ import streamlit as st
 import feedparser
 import pandas as pd
 import re
+import spacy
 from datetime import datetime
 
 # ---------------------------------------------------------
@@ -53,67 +54,13 @@ st.markdown("""
         line-height: 1.2;
     }
 
-    /* TWO-COLUMN NEWSPAPER GRID */
-    .newspaper-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 40px;
-    }
-
-    /* LEFT COLUMN — TOP STORIES */
-    .story-card {
-        border: 5px solid #000000;
-        padding: 20px;
-        margin-bottom: 25px;
-        background: #FFFFFF;
-    }
-
-    .story-title {
-        font-size: 1.4rem;
+    .section-title {
+        font-size: 1.6rem;
         font-weight: 900;
         text-transform: uppercase;
-        margin-bottom: 10px;
-    }
-
-    .story-amount {
-        background: #FFDE00;
-        padding: 6px 10px;
-        font-weight: 900;
-        font-size: 1.2rem;
-        display: inline-block;
-        margin-bottom: 10px;
-        border: 3px solid #000000;
-    }
-
-    .story-date {
-        font-family: monospace;
-        font-size: 0.9rem;
-        margin-bottom: 10px;
-    }
-
-    /* RIGHT COLUMN — NEWSLETTER */
-    .newsletter-block {
-        border-left: 6px solid #000000;
-        padding-left: 25px;
-    }
-
-    .newsletter-title {
-        font-size: 2.2rem;
-        font-weight: 900;
-        text-transform: uppercase;
-        margin-bottom: 20px;
-    }
-
-    .newsletter-entry {
-        margin-bottom: 25px;
-        padding-bottom: 15px;
+        margin: 20px 0 10px 0;
         border-bottom: 4px solid #000000;
-    }
-
-    .newsletter-entry h3 {
-        font-size: 1.4rem;
-        font-weight: 800;
-        text-transform: uppercase;
+        display: inline-block;
     }
 
     /* BRUTALIST TABLE */
@@ -149,6 +96,17 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+st.caption(f"Last updated: {datetime.now().strftime('%B %d, %Y — %I:%M %p EST')}")
+
+# ---------------------------------------------------------
+# LOAD SPACY MODEL
+# ---------------------------------------------------------
+@st.cache_resource
+def load_nlp():
+    return spacy.load("en_core_web_sm")
+
+nlp = load_nlp()
+
 # ---------------------------------------------------------
 # FETCH TECHCRUNCH AI FEED
 # ---------------------------------------------------------
@@ -157,7 +115,7 @@ def fetch_articles():
     url = "https://techcrunch.com/tag/artificial-intelligence/feed/"
     feed = feedparser.parse(url)
     articles = []
-    for entry in feed.entries[:20]:
+    for entry in feed.entries[:30]:
         articles.append({
             "title": entry.title,
             "link": entry.link,
@@ -166,61 +124,79 @@ def fetch_articles():
         })
     return articles
 
-articles = fetch_articles()
+with st.spinner("Collecting latest AI investment articles..."):
+    articles = fetch_articles()
 
 # ---------------------------------------------------------
-# EXTRACT INVESTMENT INFO
+# EXTRACT INVESTMENT + ENTITY INFO
 # ---------------------------------------------------------
 def extract_investment_info(article):
     text = article["title"] + " " + article["summary"]
 
+    # Funding amounts
     amounts = re.findall(r"\$[0-9,.]+[MB]?", text)
+
+    # Round types
     rounds = re.findall(r"(Series [A-Z]|Seed round|funding round)", text, re.IGNORECASE)
+
+    # Investors (simple pattern)
     investors = re.findall(r"([A-Z][a-zA-Z0-9& ]+)(?= (invested|led))", text)
+
+    # spaCy NER for companies / AI entities
+    doc = nlp(text)
+    orgs = [ent.text for ent in doc.ents if ent.label_ == "ORG"]
+
+    # Heuristic: first ORG as "company/AI entity"
+    company_ai = orgs[0] if orgs else ""
 
     return {
         "title": article["title"],
         "link": article["link"],
         "published": article["published"],
+        "company_ai": company_ai,
         "amounts": amounts,
         "rounds": rounds,
-        "investors": [i[0].strip() for i in investors]
+        "investors": [i[0].strip() for i in investors],
     }
 
 structured = [extract_investment_info(a) for a in articles]
 
 # ---------------------------------------------------------
-# NEWSPAPER GRID LAYOUT
+# BUILD STRUCTURED TABLE
 # ---------------------------------------------------------
-st.markdown('<div class="newspaper-grid">', unsafe_allow_html=True)
+df = pd.DataFrame(structured)
 
-# LEFT COLUMN — TOP STORIES
-st.markdown('<div>', unsafe_allow_html=True)
-for item in structured[:6]:
-    st.markdown(f"""
-        <div class="story-card">
-            <div class="story-title">{item['title']}</div>
-            <div class="story-amount">{', '.join(item['amounts']) if item['amounts'] else '—'}</div>
-            <div class="story-date">{item['published']}</div>
-            <a href="{item['link']}" target="_blank">Read more</a>
-        </div>
-    """, unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+df["Company / AI"] = df["company_ai"]
+df["Funding"] = df["amounts"].apply(lambda x: ", ".join(x) if x else "")
+df["Round"] = df["rounds"].apply(lambda x: ", ".join(x) if x else "")
+df["Investors"] = df["investors"].apply(lambda x: ", ".join(x) if x else "")
+df["Article"] = df["title"]
+df["Link"] = df["link"]
 
-# RIGHT COLUMN — NEWSLETTER
-st.markdown('<div class="newsletter-block">', unsafe_allow_html=True)
-st.markdown('<div class="newsletter-title">The Newsletter</div>', unsafe_allow_html=True)
+display_cols = ["Company / AI", "Funding", "Round", "Investors", "Article", "Link"]
+df_display = df[display_cols]
 
-for item in structured:
-    st.markdown(f"""
-        <div class="newsletter-entry">
-            <h3>{item['title']}</h3>
-            <p><strong>Funding:</strong> {', '.join(item['amounts']) if item['amounts'] else '—'}</p>
-            <p><strong>Round:</strong> {', '.join(item['rounds']) if item['rounds'] else '—'}</p>
-            <p><strong>Investors:</strong> {', '.join(item['investors']) if item['investors'] else '—'}</p>
-            <a href="{item['link']}" target="_blank">Read more</a>
-        </div>
-    """, unsafe_allow_html=True)
+# ---------------------------------------------------------
+# MAIN SECTION — AI INVESTMENT DATABASE
+# ---------------------------------------------------------
+st.markdown('<span class="section-title">AI Investment Database</span>', unsafe_allow_html=True)
+st.write(
+    "This table is generated by an AI factory that ingests TechCrunch’s AI feed, "
+    "uses spaCy to detect organizations, and extracts structured information about "
+    "who is investing in what AI companies or platforms."
+)
 
-st.markdown('</div>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+st.dataframe(df_display, use_container_width=True)
+
+# ---------------------------------------------------------
+# OPTIONAL: SIMPLE SUMMARY COUNTS
+# ---------------------------------------------------------
+st.markdown('<span class="section-title">Quick Snapshot</span>', unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.metric("Unique Companies / AI Entities", df["Company / AI"].replace("", pd.NA).nunique())
+with col2:
+    st.metric("Articles Parsed", len(df))
+with col3:
+    st.metric("Entries With Funding Info", (df["Funding"] != "").sum())
