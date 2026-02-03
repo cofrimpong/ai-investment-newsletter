@@ -3,6 +3,7 @@ import feedparser
 import pandas as pd
 import re
 import spacy
+import spacy.cli
 from datetime import datetime
 
 # ---------------------------------------------------------
@@ -99,11 +100,15 @@ st.markdown("""
 st.caption(f"Last updated: {datetime.now().strftime('%B %d, %Y — %I:%M %p EST')}")
 
 # ---------------------------------------------------------
-# LOAD SPACY MODEL
+# LOAD SPACY MODEL (DYNAMIC INSTALL)
 # ---------------------------------------------------------
 @st.cache_resource
 def load_nlp():
-    return spacy.load("en_core_web_sm")
+    try:
+        return spacy.load("en_core_web_sm")
+    except OSError:
+        spacy.cli.download("en_core_web_sm")
+        return spacy.load("en_core_web_sm")
 
 nlp = load_nlp()
 
@@ -124,8 +129,7 @@ def fetch_articles():
         })
     return articles
 
-with st.spinner("Collecting latest AI investment articles..."):
-    articles = fetch_articles()
+articles = fetch_articles()
 
 # ---------------------------------------------------------
 # EXTRACT INVESTMENT + ENTITY INFO
@@ -189,7 +193,7 @@ st.write(
 st.dataframe(df_display, use_container_width=True)
 
 # ---------------------------------------------------------
-# OPTIONAL: SIMPLE SUMMARY COUNTS
+# SNAPSHOT METRICS
 # ---------------------------------------------------------
 st.markdown('<span class="section-title">Quick Snapshot</span>', unsafe_allow_html=True)
 
