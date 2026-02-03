@@ -18,34 +18,58 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+        /* Global */
+        body {
+            background-color: #FFFFFF !important;
+        }
+
         .hero-title {
-            font-size: 2.4rem;
-            font-weight: 700;
-            margin-bottom: -10px;
-        }
-        .hero-sub {
-            font-size: 1.1rem;
-            color: #555;
-            margin-bottom: 20px;
-        }
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-top: 20px;
-        }
-        .divider {
-            border-bottom: 1px solid #e6e6e6;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
-        .headline {
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 2.8rem;
+            font-weight: 800;
             margin-bottom: -5px;
+            color: #0A0A0A;
         }
+
+        .hero-sub {
+            font-size: 1.15rem;
+            color: #4A4A4A;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            color: #111111;
+        }
+
+        .divider {
+            border-bottom: 1px solid #E0E0E0;
+            margin-top: 1.2rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .headline {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: -3px;
+            color: #222222;
+        }
+
         .subtle {
-            color: #6e6e6e;
+            color: #7A7A7A;
             font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        /* Table polish */
+        .dataframe tbody tr:nth-child(even) {
+            background-color: #FAFAFA;
+        }
+
+        .dataframe tbody tr:hover {
+            background-color: #F0F8FF;
         }
     </style>
     """,
