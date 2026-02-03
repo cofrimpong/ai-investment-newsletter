@@ -4,151 +4,154 @@ import pandas as pd
 import re
 from datetime import datetime
 
-# -----------------------------
-# Page Config
-# -----------------------------
+# ---------------------------------------------------------
+# PAGE CONFIG
+# ---------------------------------------------------------
 st.set_page_config(
     page_title="AI Investment Daily",
     layout="wide"
 )
 
-# -----------------------------
-# Custom CSS
-# -----------------------------
-st.markdown(
-    """
-    <style>
+# ---------------------------------------------------------
+# BRUTALIST CSS
+# ---------------------------------------------------------
+st.markdown("""
+<style>
 
-        /* GLOBAL RESET */
-        body, .stApp {
-            background: #ffffff !important;
-            color: #000000 !important;
-            font-family: 'Inter', sans-serif;
-        }
+    body, .stApp {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+        font-family: 'Inter', sans-serif;
+    }
 
-        /* NEO-BRUTALIST COLORS */
-        :root {
-            --primary: #000000;
-            --accent: #ffde00;
-            --border: 4px solid #000000;
-        }
+    /* MAXIMALIST SPLIT MASTHEAD */
+    .masthead {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        border: 6px solid #000000;
+        margin-bottom: 30px;
+    }
 
-        /* HEADERS */
-        .hero-title {
-            font-size: 3.2rem;
-            font-weight: 900;
-            padding: 10px 0;
-            border-bottom: var(--border);
-            text-transform: uppercase;
-        }
+    .masthead-left {
+        background: #000000;
+        color: #FFFFFF;
+        padding: 25px;
+        font-size: 3.4rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        line-height: 1;
+        border-right: 6px solid #000000;
+    }
 
-        .hero-sub {
-            font-size: 1.2rem;
-            font-weight: 500;
-            margin-top: 10px;
-            padding: 10px;
-            background: var(--accent);
-            border: var(--border);
-        }
+    .masthead-right {
+        background: #FFDE00;
+        color: #000000;
+        padding: 25px;
+        font-size: 1.4rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        line-height: 1.2;
+    }
 
-        .section-title {
-            font-size: 1.6rem;
-            font-weight: 800;
-            margin-top: 40px;
-            padding: 8px 12px;
-            background: #ffffff;
-            border-left: var(--border);
-            border-bottom: var(--border);
-        }
+    /* TWO-COLUMN NEWSPAPER GRID */
+    .newspaper-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+    }
 
-        /* DIVIDERS */
-        .divider {
-            border-bottom: var(--border);
-            margin-top: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
+    /* LEFT COLUMN — TOP STORIES */
+    .story-card {
+        border: 5px solid #000000;
+        padding: 20px;
+        margin-bottom: 25px;
+        background: #FFFFFF;
+    }
 
-        /* HEADLINES */
-        .headline {
-            font-size: 1.2rem;
-            font-weight: 800;
-            padding: 6px;
-            border: var(--border);
-            background: #ffffff;
-        }
+    .story-title {
+        font-size: 1.4rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
 
-        .subtle {
-            font-size: 0.85rem;
-            color: #333333;
-            margin-bottom: 5px;
-        }
+    .story-amount {
+        background: #FFDE00;
+        padding: 6px 10px;
+        font-weight: 900;
+        font-size: 1.2rem;
+        display: inline-block;
+        margin-bottom: 10px;
+        border: 3px solid #000000;
+    }
 
-        /* TABLE */
-        .dataframe {
-            border: var(--border) !important;
-        }
+    .story-date {
+        font-family: monospace;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
 
-        .dataframe th {
-            background: var(--accent) !important;
-            border: var(--border) !important;
-            font-weight: 900 !important;
-        }
+    /* RIGHT COLUMN — NEWSLETTER */
+    .newsletter-block {
+        border-left: 6px solid #000000;
+        padding-left: 25px;
+    }
 
-        .dataframe td {
-            border: var(--border) !important;
-        }
+    .newsletter-title {
+        font-size: 2.2rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+    }
 
-        /* LINKS */
-        a {
-            color: #000000 !important;
-            font-weight: 700;
-            text-decoration: underline !important;
-        }
+    .newsletter-entry {
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 4px solid #000000;
+    }
 
-        /* SIDEBAR */
-        section[data-testid="stSidebar"] {
-            background: #ffde00 !important;
-            border-right: var(--border);
-        }
+    .newsletter-entry h3 {
+        font-size: 1.4rem;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
 
-        section[data-testid="stSidebar"] * {
-            color: #000000 !important;
-            font-weight: 700 !important;
-        }
+    /* BRUTALIST TABLE */
+    .dataframe {
+        border: 5px solid #000000 !important;
+    }
 
-        /* BUTTONS */
-        .stButton>button {
-            background: #ffffff !important;
-            border: var(--border) !important;
-            color: #000000 !important;
-            font-weight: 800 !important;
-            padding: 10px 20px;
-            text-transform: uppercase;
-        }
+    .dataframe th {
+        background: #FFDE00 !important;
+        border: 3px solid #000000 !important;
+        font-weight: 900 !important;
+        text-transform: uppercase;
+    }
 
-        .stButton>button:hover {
-            background: var(--accent) !important;
-        }
+    .dataframe td {
+        border: 3px solid #000000 !important;
+    }
 
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-# -----------------------------
-# Hero Section
-# -----------------------------
-st.markdown("<p class='hero-title'>AI Investment Daily</p>", unsafe_allow_html=True)
-st.markdown("<p class='hero-sub'>Tracking who is funding the future of AI — updated continuously using TechCrunch’s AI feed.</p>", unsafe_allow_html=True)
+</style>
+""", unsafe_allow_html=True)
 
-st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
+# ---------------------------------------------------------
+# MASTHEAD
+# ---------------------------------------------------------
+st.markdown("""
+<div class="masthead">
+    <div class="masthead-left">
+        AI Investment Daily
+    </div>
+    <div class="masthead-right">
+        Issue 004<br>February 2026
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
-# Timestamp
-now = datetime.now().strftime("%B %d, %Y — %I:%M %p EST")
-st.caption(f"Last updated: {now}")
-
-# -----------------------------
-# Fetch Articles
-# -----------------------------
+# ---------------------------------------------------------
+# FETCH TECHCRUNCH AI FEED
+# ---------------------------------------------------------
 @st.cache_data
 def fetch_articles():
     url = "https://techcrunch.com/tag/artificial-intelligence/feed/"
@@ -163,12 +166,11 @@ def fetch_articles():
         })
     return articles
 
-with st.spinner("Fetching latest AI investment articles..."):
-    articles = fetch_articles()
+articles = fetch_articles()
 
-# -----------------------------
-# Extract Investment Info
-# -----------------------------
+# ---------------------------------------------------------
+# EXTRACT INVESTMENT INFO
+# ---------------------------------------------------------
 def extract_investment_info(article):
     text = article["title"] + " " + article["summary"]
 
@@ -187,70 +189,38 @@ def extract_investment_info(article):
 
 structured = [extract_investment_info(a) for a in articles]
 
-# Convert to DataFrame for table
-df = pd.DataFrame(structured)
+# ---------------------------------------------------------
+# NEWSPAPER GRID LAYOUT
+# ---------------------------------------------------------
+st.markdown('<div class="newspaper-grid">', unsafe_allow_html=True)
 
-# -----------------------------
-# Sidebar Filters
-# -----------------------------
-st.sidebar.header("Filter Investments")
+# LEFT COLUMN — TOP STORIES
+st.markdown('<div>', unsafe_allow_html=True)
+for item in structured[:6]:
+    st.markdown(f"""
+        <div class="story-card">
+            <div class="story-title">{item['title']}</div>
+            <div class="story-amount">{', '.join(item['amounts']) if item['amounts'] else '—'}</div>
+            <div class="story-date">{item['published']}</div>
+            <a href="{item['link']}" target="_blank">Read more</a>
+        </div>
+    """, unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
 
-min_amount = st.sidebar.selectbox(
-    "Minimum Funding Amount",
-    ["None", "$1M", "$10M", "$50M", "$100M"]
-)
+# RIGHT COLUMN — NEWSLETTER
+st.markdown('<div class="newsletter-block">', unsafe_allow_html=True)
+st.markdown('<div class="newsletter-title">The Newsletter</div>', unsafe_allow_html=True)
 
-round_filter = st.sidebar.selectbox(
-    "Round Type",
-    ["All", "Seed", "Series A", "Series B", "Series C"]
-)
+for item in structured:
+    st.markdown(f"""
+        <div class="newsletter-entry">
+            <h3>{item['title']}</h3>
+            <p><strong>Funding:</strong> {', '.join(item['amounts']) if item['amounts'] else '—'}</p>
+            <p><strong>Round:</strong> {', '.join(item['rounds']) if item['rounds'] else '—'}</p>
+            <p><strong>Investors:</strong> {', '.join(item['investors']) if item['investors'] else '—'}</p>
+            <a href="{item['link']}" target="_blank">Read more</a>
+        </div>
+    """, unsafe_allow_html=True)
 
-# -----------------------------
-# Top 5 Deals Section
-# -----------------------------
-st.markdown("<p class='section-title'>🔥 Top 5 AI Deals Today</p>", unsafe_allow_html=True)
-
-top_deals = df[df["amounts"].map(lambda x: len(x) > 0)]
-
-for _, row in top_deals.head(5).iterrows():
-    st.markdown(f"**{row['title']}**")
-    if row["amounts"]:
-        st.write("Funding:", ", ".join(row["amounts"]))
-    if row["rounds"]:
-        st.write("Round:", ", ".join(row["rounds"]))
-    if row["investors"]:
-        st.write("Investors:", ", ".join(row["investors"]))
-    st.markdown(f"[Read more]({row['link']})")
-    st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
-
-# -----------------------------
-# Investment Table
-# -----------------------------
-st.markdown("<p class='section-title'>📊 AI Investment Database</p>", unsafe_allow_html=True)
-
-df_display = df.copy()
-df_display["Funding"] = df_display["amounts"].apply(lambda x: ", ".join(x) if x else "")
-df_display["Round"] = df_display["rounds"].apply(lambda x: ", ".join(x) if x else "")
-df_display["Investors"] = df_display["investors"].apply(lambda x: ", ".join(x) if x else "")
-
-df_display = df_display[["title", "Funding", "Round", "Investors", "link"]]
-
-st.dataframe(df_display, use_container_width=True)
-
-# -----------------------------
-# Newsletter Section
-# -----------------------------
-st.markdown("<p class='section-title'>📰 Generated Newsletter</p>", unsafe_allow_html=True)
-
-newsletter = ""
-for _, row in df_display.iterrows():
-    newsletter += f"### {row['title']}\n"
-    if row['Funding']:
-        newsletter += f"- **Funding:** {row['Funding']}\n"
-    if row['Round']:
-        newsletter += f"- **Round:** {row['Round']}\n"
-    if row['Investors']:
-        newsletter += f"- **Investors:** {row['Investors']}\n"
-    newsletter += f"- [Read more]({row['link']})\n\n"
-
-st.markdown(newsletter)
+st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
