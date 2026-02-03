@@ -80,7 +80,7 @@ st.markdown(
 # Hero Section
 # -----------------------------
 st.markdown("<p class='hero-title'>AI Investment Daily</p>", unsafe_allow_html=True)
-st.markdown("<p class='hero-sub'>Live updates on who is funding the future of AI — powered by TechCrunch’s AI feed.</p>", unsafe_allow_html=True)
+st.markdown("<p class='hero-sub'>Tracking who is funding the future of AI — updated continuously using TechCrunch’s AI feed.</p>", unsafe_allow_html=True)
 
 st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
 
